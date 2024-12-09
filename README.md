@@ -22,8 +22,8 @@
 ## How to Build and Run
 
 ### 1. Clone the Repository
-git clone <web_service_repo_url>
-cd web-service
+- git clone https://github.com/Adewale103/web-service.git
+- cd web-service
 
 ### 2.  Build the JAR
 mvn clean package
@@ -40,6 +40,3 @@ http://localhost:8082/books
 Default Management Service URL is http://localhost:8080. 
 - Update application.properties if needed:
 management.service.url = http://<management_service_url>
-
-
-# web-service

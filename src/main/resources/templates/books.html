@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Book Catalogue</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      margin-bottom: 30px;
+      background-color: #fff;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    form input, form button, form select {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    form button {
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #f8f8f8;
+      color: #333;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .pagination a {
+      color: #007bff;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    .pagination a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<h1>Book Catalogue</h1>
+
+<form th:if="${!editing}" action="/books" method="post">
+  <div th:if="${error}" class="error">
+    <p th:text="${error}"></p>
+  </div>
+  <input type="text" name="name" placeholder="Book Name" required />
+  <input type="number" name="isbn" placeholder="ISBN" required />
+  <input type="date" name="publishedDate" required max="" id="addPublishedDate" />
+  <input type="number" name="price" placeholder="Price" required />
+  <select name="bookType" required>
+    <option value="">Select Book Type</option>
+    <option value="HARDCOVER">HARDCOVER</option>
+    <option value="SOFTCOVER">SOFTCOVER</option>
+    <option value="EBOOK">EBOOK</option>
+  </select>
+  <button type="submit">Add Book</button>
+</form>
+
+
+<form th:if="${editing}" action="/books/update" method="post">
+  <div th:if="${error}" class="error">
+    <p th:text="${error}"></p>
+  </div>
+  <input type="hidden" name="bookId" th:value="${editBook?.id}" />
+  <input type="text" name="name" th:value="${editBook?.name}" placeholder="Book Name" required />
+  <input type="number" name="isbn" th:value="${editBook?.isbn}" placeholder="ISBN" required />
+  <input type="date" name="publishedDate" th:value="${editBook?.publishDate}" required max="" id="editPublishedDate" />
+  <input type="number" name="price" th:value="${editBook?.price}" placeholder="Price" required />
+  <select name="bookType" required>
+    <option value="">Select Book Type</option>
+    <option th:selected="${editBook?.bookType == 'HARDCOVER'}" value="HARDCOVER">HARDCOVER</option>
+    <option th:selected="${editBook?.bookType == 'SOFTCOVER'}" value="SOFTCOVER">SOFTCOVER</option>
+    <option th:selected="${editBook?.bookType == 'EBOOK'}" value="EBOOK">EBOOK</option>
+  </select>
+  <button type="submit">Update Book</button>
+</form>
+
+<table>
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>ISBN</th>
+    <th>Publish Date</th>
+    <th>Price</th>
+    <th>Book Type</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="book : ${books}">
+    <td th:text="${book.name}">Name</td>
+    <td th:text="${book.isbn}">ISBN</td>
+    <td th:text="${book.publishDate}">Publish Date</td>
+    <td th:text="${book.price}">Price</td>
+    <td th:text="${book.bookType}">Type</td>
+    <td>
+      <a th:href="@{/books/fetch(bookId=${book.id})}">
+        <button style="background-color: #007bff; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px;">
+          Edit
+        </button>
+      </a>
+      <form action="/books/delete" method="post" style="display: inline;">
+        <input type="hidden" name="bookId" th:value="${book.id}" />
+        <button style="background-color: #007bff; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px;">
+          Delete
+        </button>
+      </form>
+    </td>
+
+  </tr>
+  </tbody>
+</table>
+
+<div class="pagination">
+
+  <a th:if="${(currentPage ?: 0) > 0}"
+     th:href="@{/books(page=${(currentPage ?: 0) - 1})}">
+    Previous
+  </a>
+  <span th:text="'Page ' + (${(currentPage ?: 0) + 1}) + ' of ' + (${totalPages ?: 1})">
+    Page 1 of 1
+  </span>
+  <a th:if="${(currentPage ?: 0) + 1 < (totalPages ?: 1)}"
+     th:href="@{/books(page=${(currentPage ?: 0) + 1})}">
+    Next
+  </a>
+</div>
+
+
+
+<script>
+  const addPublishedDate = document.getElementById('addPublishedDate');
+  if (addPublishedDate) {
+    addPublishedDate.max = new Date().toISOString().split('T')[0];
+  }
+
+  const editPublishedDate = document.getElementById('editPublishedDate');
+  if (editPublishedDate) {
+    editPublishedDate.max = new Date().toISOString().split('T')[0];
+  }
+</script>
+
+</body>
+</html>
