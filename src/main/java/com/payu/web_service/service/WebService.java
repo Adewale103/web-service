@@ -59,7 +59,7 @@ public class WebService {
     }
 
     public void deleteBook(String bookId) {
-        String url = managementServiceUrl + "/delete?bookId=" + bookId;
+        String url = managementServiceUrl + "?bookId=" + bookId;
         restTemplate.delete(url);
     }
 
