@@ -37,6 +37,6 @@ http://localhost:8082/books
 
 ### 5.  Integration with Management Service
 
-Default Management Service URL is http://localhost:8080. 
+Default Management Service URL is http://localhost:8080/api/v1/book. 
 - Update application.properties if needed:
 management.service.url = http://<management_service_url>
