@@ -100,7 +100,7 @@
   <input type="text" name="name" placeholder="Book Name" required />
   <input type="number" name="isbn" placeholder="ISBN" required />
   <input type="date" name="publishedDate" required max="" id="addPublishedDate" />
-  <input type="number" name="price" placeholder="Price" required />
+  <input type="number" name="price" placeholder="Price" required step="0.01" />
   <select name="bookType" required>
     <option value="">Select Book Type</option>
     <option value="HARDCOVER">HARDCOVER</option>
@@ -119,7 +119,7 @@
   <input type="text" name="name" th:value="${editBook?.name}" placeholder="Book Name" required />
   <input type="number" name="isbn" th:value="${editBook?.isbn}" placeholder="ISBN" required />
   <input type="date" name="publishedDate" th:value="${editBook?.publishDate}" required max="" id="editPublishedDate" />
-  <input type="number" name="price" th:value="${editBook?.price}" placeholder="Price" required />
+  <input type="number" name="price" th:value="${editBook?.price}" placeholder="Price" required step="0.01" />
   <select name="bookType" required>
     <option value="">Select Book Type</option>
     <option th:selected="${editBook?.bookType == 'HARDCOVER'}" value="HARDCOVER">HARDCOVER</option>

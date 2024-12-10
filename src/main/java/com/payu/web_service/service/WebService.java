@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -35,18 +36,25 @@ public class WebService {
     }
 
     public void createBook(BookRequest bookRequest) {
-        log.info("book request {}",bookRequest);
+        log.info("book request {}", bookRequest);
         String url = managementServiceUrl;
         try {
-        restTemplate.postForObject(url, bookRequest, Void.class);
+            restTemplate.postForObject(url, bookRequest, Void.class);
         } catch (HttpStatusCodeException e) {
             String errorMessage = "An unexpected error occurred";
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST || e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
                 try {
-                    Map<String, String> errorResponse = objectMapper.readValue(e.getResponseBodyAsString(), Map.class);
-                    errorMessage = errorResponse.getOrDefault("message", errorMessage);
+                    Map<String, Object> errorResponse = objectMapper.readValue(e.getResponseBodyAsString(), Map.class);
+                    Object messageField = errorResponse.get("message");
+                    if (messageField instanceof String) {
+                        errorMessage = (String) messageField;
+                    } else if (messageField instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<String> messages = (List<String>) messageField;
+                        errorMessage = String.join("\n", messages);
+                    }
                 } catch (Exception parseException) {
-                 log.error("Error occurred {}",parseException.getMessage());
+                    log.error("Error occurred during parsing: {}", parseException.getMessage());
                 }
             }
             throw new RuntimeException(errorMessage);
@@ -55,8 +63,30 @@ public class WebService {
 
     public void updateBook(String bookId, BookRequest bookRequest) {
         String url = managementServiceUrl + "?bookId=" + bookId;
-        restTemplate.put(url, bookRequest);
+        try {
+            restTemplate.put(url, bookRequest);
+        } catch (HttpStatusCodeException e) {
+            String errorMessage = "An unexpected error occurred";
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST || e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
+                try {
+                    Map<String, Object> errorResponse = objectMapper.readValue(e.getResponseBodyAsString(), Map.class);
+                    Object messageField = errorResponse.get("message");
+                    if (messageField instanceof String) {
+                        errorMessage = (String) messageField;
+                    } else if (messageField instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<String> messages = (List<String>) messageField;
+                        errorMessage = String.join("\n", messages);
+                    }
+                } catch (Exception parseException) {
+                    log.error("Error occurred during parsing updated request: {}", parseException.getMessage());
+                }
+            }
+            throw new RuntimeException(errorMessage);
+        }
     }
+
+
 
     public void deleteBook(String bookId) {
         String url = managementServiceUrl + "?bookId=" + bookId;
