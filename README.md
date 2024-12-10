@@ -13,6 +13,9 @@
 3. Run `mvn spring-boot:run`.
 4. Open the browser and go to `http://localhost:8082/books`.
 
+## Note
+Please make sure management service (backend) is running before testing from web service
+
 ## Dependencies
 - Thymeleaf
 - Spring Boot Web
